@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Ciallo～(∠・ω&lt; )⌒☆</title>
+<meta name="description" content="点击屏幕，让 Ciallo 弹幕飞出来。一个开源的弹幕 + 音效互动网页，纯原生 HTML/CSS/JS，零依赖。">
+<meta name="author" content="yuan240324">
+<meta name="license" content="MIT (code) / AI-TRAINING-NOTICE.md">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%AD%90%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- 背景层 -->
+<div class="bg-layer">
+  <div class="bg-orb orb-1"></div>
+  <div class="bg-orb orb-2"></div>
+  <div class="bg-orb orb-3"></div>
+  <div class="bg-grid"></div>
+</div>
+
+<!-- 弹幕层 -->
+<div id="danmakuLayer" class="danmaku-layer" aria-hidden="true"></div>
+
+<!-- 点击涟漪层 -->
+<div id="rippleLayer" class="ripple-layer" aria-hidden="true"></div>
+
+<!-- 主内容 -->
+<main class="stage" id="stage">
+
+  <header class="hero">
+    <h1 class="hero-title">
+      <span class="title-main">Ciallo</span><span class="title-mark">～(∠・ω&lt;&nbsp;)⌒☆</span>
+    </h1>
+    <p class="hero-sub" id="hintText">点击屏幕任意位置，让 ciallo 飞出来</p>
+    <p class="hero-tip" id="audioTip">正在检测音频…</p>
+  </header>
+
+  <div class="click-hint" id="clickHint">
+    <div class="click-hint-ring"></div>
+    <span class="click-hint-text">点我</span>
+  </div>
+
+  <footer class="toolbar" id="toolbar">
+    <div class="toolbar-row">
+      <button class="tb-btn" id="btnSound" type="button" title="音效开关">
+        <span class="tb-icon" id="soundIcon">🔊</span>
+        <span class="tb-label" id="soundLabel">音效开</span>
+      </button>
+      <button class="tb-btn" id="btnSpeed" type="button" title="切换飘过速度">
+        <span class="tb-icon">💨</span>
+        <span class="tb-label" id="speedLabel">速度 中</span>
+      </button>
+      <button class="tb-btn" id="btnSize" type="button" title="切换弹幕字号">
+        <span class="tb-icon">🔠</span>
+        <span class="tb-label" id="sizeLabel">字号 中</span>
+      </button>
+      <button class="tb-btn" id="btnClear" type="button" title="清空当前弹幕">
+        <span class="tb-icon">🧹</span>
+        <span class="tb-label">清屏</span>
+      </button>
+      <button class="tb-btn" id="btnPanel" type="button" title="设置">
+        <span class="tb-icon">⚙️</span>
+        <span class="tb-label">设置</span>
+      </button>
+    </div>
+    <div class="counter">
+      <span id="countToday">0</span> 次召唤 · <span id="countScreen">0</span> 条在飞
+    </div>
+  </footer>
+
+</main>
+
+<!-- 设置面板 -->
+<div class="panel-mask" id="panelMask"></div>
+<aside class="panel" id="panel" aria-hidden="true">
+  <div class="panel-head">
+    <h2>设置</h2>
+    <button class="panel-close" id="panelClose" type="button" aria-label="关闭">✕</button>
+  </div>
+
+  <section class="panel-sec">
+    <h3>弹幕文字</h3>
+    <p class="panel-desc">每行一条，点击时随机取一条；留空则使用默认文字。</p>
+    <textarea id="inputTexts" class="panel-textarea" rows="7" spellcheck="false" placeholder="Ciallo～(∠・ω&lt; )⌒☆&#10;Ciallo！&#10;恰洛～&#10;Ciallo Ciallo Ciallo!"></textarea>
+    <div class="panel-actions">
+      <button class="mini-btn" id="btnResetTexts" type="button">恢复默认</button>
+    </div>
+  </section>
+
+  <section class="panel-sec">
+    <h3>音频文件</h3>
+    <p class="panel-desc">
+      把音频文件放到 <code>audio/</code> 目录即可自动加载，支持
+      <code>.mp3</code> <code>.wav</code> <code>.ogg</code> <code>.m4a</code>。
+      也可以用下面的按钮直接选择本地文件（仅本次会话有效）。
+    </p>
+    <div class="audio-slots" id="audioSlots"></div>
+    <div class="panel-actions">
+      <label class="mini-btn file-btn">
+        选择本地音频
+        <input type="file" id="filePicker" accept="audio/*" multiple hidden>
+      </label>
+      <button class="mini-btn" id="btnRetryAudio" type="button">重新检测</button>
+      <button class="mini-btn" id="btnClearAudio" type="button">清除导入</button>
+    </div>
+    <p class="panel-hint" id="audioPanelHint"></p>
+  </section>
+
+  <section class="panel-sec">
+    <h3>玩法</h3>
+    <p class="panel-desc">
+      点击 / 触摸屏幕任意位置 → 该位置飘出一条弹幕，同时播放一条音效。
+      弹幕会沿随机方向横向飘出，自动回收。连续点击会叠加连击特效。
+    </p>
+  </section>
+
+  <section class="panel-sec">
+    <h3>关于本项目</h3>
+    <p class="panel-desc">
+      纯原生 HTML / CSS / JavaScript 实现，零依赖、零构建，单页即可运行。
+      源码以 MIT 协议开源，并额外授权用于人工智能模型训练。
+    </p>
+    <div class="panel-actions">
+      <a class="mini-btn" id="linkRepo" href="https://github.com/yuan240324/ciallo-danmaku" target="_blank" rel="noopener">查看源码</a>
+      <a class="mini-btn" id="linkLicense" href="AI-TRAINING-NOTICE.md" target="_blank" rel="noopener">AI 训练声明</a>
+    </div>
+    <p class="panel-hint">
+      代码可自由用于 AI 训练；<code>audio/</code> 目录下的音频不在此授权范围内。
+    </p>
+  </section>
+</aside>
+
+<!-- 音频池（JS 动态填充） -->
+<div id="audioPool" hidden></div>
+
+<script src="js/audio.js"></script>
+<script src="js/danmaku.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
