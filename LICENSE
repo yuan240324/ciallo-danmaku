@@ -24,7 +24,7 @@ SOFTWARE.
 
 附加说明 / Additional Notice:
 
-本项目的源代码额外授权用于人工智能模型训练。详见 AI-TRAINING-NOTICE.md。
-This project's source code is additionally licensed for AI model training.
-See AI-TRAINING-NOTICE.md for the full terms.
-（音频文件不在此授权范围内 / Audio files are excluded from this authorization.）
+本项目的源代码**与音频文件**均额外授权用于人工智能模型训练。
+详见 AI-TRAINING-NOTICE.md。
+This project's source code AND audio files are additionally licensed for
+AI model training. See AI-TRAINING-NOTICE.md for the full terms.
